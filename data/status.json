@@ -1,3 +1,149 @@
 {
-  "leis": {}
+  "leis": {
+    "cf": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 424
+    },
+    "cc": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 2083
+    },
+    "cpc": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 1082
+    },
+    "lindb": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 30
+    },
+    "cdc": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 130
+    },
+    "inquilinato": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 101
+    },
+    "bemfamilia": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 8
+    },
+    "jec": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 106
+    },
+    "jef": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 28
+    },
+    "idoso": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 179
+    },
+    "pcd": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 130
+    },
+    "clt": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 1847
+    },
+    "fgts": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 96
+    },
+    "domesticos": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 48
+    },
+    "temporario": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 39
+    },
+    "dsr": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 30
+    },
+    "decimoterceiro": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 4
+    },
+    "segurodesemprego": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 69
+    },
+    "processotrabalho": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 21
+    },
+    "beneficios": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 290
+    },
+    "custeio": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 183
+    },
+    "rps": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 689
+    },
+    "loas": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 71
+    },
+    "ec103": {
+      "ok": true,
+      "verificadoEm": "2026-10-03T16:22:57.441Z",
+      "alteradoEm": "2026-10-03T16:22:57.441Z",
+      "artigos": 36
+    }
+  },
+  "geradoEm": "2026-10-03T16:22:57.441Z"
 }
