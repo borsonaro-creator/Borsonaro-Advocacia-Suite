@@ -284,22 +284,23 @@ function trechoDaUnidade(u, termos) {
 // Entre versões do mesmo artigo, prefere a de nota de redação mais recente e
 // evita as marcadas com vigência encerrada (ex.: MPs que caducaram).
 function melhorVersao(lista) {
-  const nota = (u) => u.blocos.filter((b) => !b.s).map((b) => b.t).join(' ');
   const pontos = (u) => {
-    const t = nota(u);
+    const t = u.blocos.filter((b) => !b.s).map((b) => b.t).join(' ');
     let p = 0;
-    if (/vig[êe]ncia encerrada|perdeu (a )?efic[áa]cia|rejeitad[oa]/i.test(t)) p -= 10000;
+    if (/vig[êe]ncia (encerrada|suspensa)|efic[áa]cia suspensa|perdeu (a )?efic[áa]cia|rejeitad[oa]/i.test(t)) p -= 10000;
     if (/^[^()]{0,60}\(\s*revogad[oa]/i.test(t)) p -= 5000;
-    const anos = [...t.matchAll(/\((?:Reda[çc][ãa]o dada|Inclu[íi]d[oa]|Restabelecid[oa]|Acrescid[oa]|Renumerad[oa])[^()]*?(?:de |\/)((?:19|20)\d{2})/gi)].map((m) => Number(m[1]));
-    p += anos.length ? Math.max(...anos) : 0;
-    return p;
+    // Ano mais recente nas notas "(Redação dada pela Lei nº …, de 9.12.1976)".
+    const notas = t.match(/\((?:Reda[çc][ãa]o dada|Inclu[íi]d[oa]|Restabelecid[oa]|Acrescid[oa]|Renumerad[oa])[^()]*\)/gi) || [];
+    const anos = notas.flatMap((n) => (n.match(/\b(?:19|20)\d{2}\b/g) || []).map(Number));
+    return p + (anos.length ? Math.max(...anos) : 0);
   };
+  // Empate: a que vem por último no texto (o Planalto põe a mais nova depois).
   return lista.reduce((melhor, u) => (pontos(u) >= pontos(melhor) ? u : melhor));
 }
 
 function rotuloParte(lei, u) {
   const p = (lei.meta.partes || []).find((x) => normalizar(u.ctx || '').includes(normalizar(x.contexto)));
-  return p ? `Art. ${u.art} do ${p.nome}` : `Art. ${u.art} (${(u.ctx || '').split(' › ')[0].slice(0, 40)})`;
+  return p ? `Art. ${u.art} do ${p.nome}` : `Art. ${u.art} da ${lei.meta.sigla}`;
 }
 
 function rotuloArtigo(lei, u) {
@@ -564,10 +565,20 @@ function cartaoResultado(lei, u, termos, qs) {
 }
 
 // Rola até o elemento descontando o topo e a barra de busca fixos.
+// Como o texto usa content-visibility (alturas estimadas fora da tela), a
+// posição muda depois que os trechos são desenhados: corrige até estabilizar.
+let rolagemId = 0;
 function rolarPara(el) {
   if (!el) return;
-  const fixo = ($('.topo')?.offsetHeight || 0) + ($('.barra-leitor')?.offsetHeight || 0) + 8;
-  window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - fixo);
+  const id = ++rolagemId;
+  const ajustar = (tentativa) => {
+    if (id !== rolagemId) return;
+    const fixo = ($('.topo')?.offsetHeight || 0) + ($('.barra-leitor')?.offsetHeight || 0) + 8;
+    const delta = el.getBoundingClientRect().top - fixo;
+    if (Math.abs(delta) > 2) window.scrollTo(0, window.scrollY + delta);
+    if (tentativa < 12 && (Math.abs(delta) > 2 || tentativa < 2)) requestAnimationFrame(() => ajustar(tentativa + 1));
+  };
+  ajustar(0);
 }
 
 // ---------- Leitor ----------

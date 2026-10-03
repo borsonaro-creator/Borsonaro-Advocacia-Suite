@@ -213,6 +213,23 @@ function pareceSubtitulo(t) {
   return t.length <= 140 && !/[.;:,]$/.test(t) && !/^(Art|§|Par[áa]grafo|[IVXLC]+\s*[-–—]|[a-z]\))/.test(t) && !/^\(/.test(t);
 }
 
+// Nas versões superadas (ex.: MP que caducou) o Planalto risca o texto, mas
+// deixa sem risco as notas "(Redação dada pela MP…) Vigência encerrada".
+// Se tudo o que sobra sem risco são notas, o bloco conta como riscado.
+export function soSobramNotas(segs) {
+  if (!segs.some((x) => x[1])) return false;
+  const letras = (t) => (t.match(/[A-Za-zÀ-ú0-9]/g) || []).length;
+  const riscado = letras(segs.filter((x) => x[1]).map((x) => x[0]).join(''));
+  const total = letras(segs.map((x) => x[0]).join(''));
+  const livre = segs.filter((x) => !x[1]).map((x) => x[0]).join(' ')
+    .replace(/\((?:[^()]|\([^()]*\))*\)/g, ' ')
+    .replace(/\b(Vig[êe]ncia encerrada|Vig[êe]ncia|Produ[çc][ãa]o de efeitos?|Convers[ãa]o|Regulamento|Mensagem de veto)\b/gi, ' ')
+    .replace(/[\s.,;:()–—-]+/g, '');
+  // Sobra no máximo uma letra solta (ex.: o "A" de "Art." fora do <strike>),
+  // ou quase tudo está riscado e o resto é curto (ex.: só "gratuita." de fora).
+  return livre.length <= 2 || (riscado / total >= 0.8 && livre.length <= 30);
+}
+
 export function parsePlanalto(html) {
   const titulo = normalizarEspacos(decodificarEntidades((/<title[^>]*>([\s\S]*?)<\/title>/i.exec(html) || [])[1] || '')).trim();
   const brutos = extrairBlocosBrutos(html);
@@ -227,6 +244,8 @@ export function parsePlanalto(html) {
   let ultimoArtigo = 0;
   const RE_FECHA_ASPAS = /[”"]\s*(?:\(\s*NR\s*\))?\s*[.;,]?\s*(?:\((?:[^()]|\([^()]*\))*\)\s*)*$/;
 
+  let rodape = false; // depois de "Este texto não substitui o publicado no DOU"
+
   for (const { segs: segsBrutos, bq } of brutos) {
     if (emCitacao && citacaoNoBq && !bq) emCitacao = false;
     const segs = consolidarSegmentos(segsBrutos);
@@ -236,8 +255,20 @@ export function parsePlanalto(html) {
 
     const bloco = { k: 'p', t };
     const tachados = segs.filter((s) => s[1]);
-    if (tachados.length === segs.length) bloco.s = 1;
+    if (tachados.length === segs.length || soSobramNotas(segs)) bloco.s = 1;
     else if (tachados.length) bloco.g = segs.map(([x, r]) => [x, r ? 1 : 0]);
+
+    // Notas do Planalto depois do aviso "Este texto não substitui…": não são
+    // artigos da lei. O aviso também aparece no meio da página (CF antes do
+    // ADCT; CLT e Decreto 3.048 depois do decreto de aprovação), então uma
+    // divisão real (Título, Livro, ADCT…) volta ao texto normal.
+    if (rodape && RE_TITULO.test(t) && !/^\d/.test(t)) rodape = false;
+    if (rodape || /^Este texto n[ãa]o substitui/i.test(t)) {
+      rodape = true;
+      bloco.c = 1;
+      blocos.push(bloco);
+      continue;
+    }
 
     const abreAspas = /^[“"]/.test(t);
     let citado = emCitacao || abreAspas;
