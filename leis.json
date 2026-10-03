@@ -1,0 +1,37 @@
+{
+  "areas": [
+    { "id": "constitucional", "nome": "Constituição" },
+    { "id": "civil", "nome": "Direito Civil e Processo Civil" },
+    { "id": "trabalhista", "nome": "Direito do Trabalho" },
+    { "id": "previdenciario", "nome": "Direito Previdenciário" }
+  ],
+  "leis": [
+    { "id": "cf", "area": "constitucional", "sigla": "CF/88", "nome": "Constituição Federal de 1988", "apelidos": ["cf", "crfb", "constituicao"], "url": "https://www.planalto.gov.br/ccivil_03/constituicao/constituicaocompilado.htm" },
+
+    { "id": "cc", "area": "civil", "sigla": "CC", "nome": "Código Civil — Lei nº 10.406/2002", "apelidos": ["cc", "codigo civil", "10406"], "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10406compilada.htm" },
+    { "id": "cpc", "area": "civil", "sigla": "CPC", "nome": "Código de Processo Civil — Lei nº 13.105/2015", "apelidos": ["cpc", "13105"], "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13105.htm" },
+    { "id": "lindb", "area": "civil", "sigla": "LINDB", "nome": "Lei de Introdução às Normas do Direito Brasileiro — Decreto-Lei nº 4.657/1942", "apelidos": ["lindb", "licc", "4657"], "url": "https://www.planalto.gov.br/ccivil_03/decreto-lei/del4657compilado.htm" },
+    { "id": "cdc", "area": "civil", "sigla": "CDC", "nome": "Código de Defesa do Consumidor — Lei nº 8.078/1990", "apelidos": ["cdc", "8078"], "url": "https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm" },
+    { "id": "inquilinato", "area": "civil", "sigla": "Lei 8.245/91", "nome": "Lei do Inquilinato — Lei nº 8.245/1991", "apelidos": ["inquilinato", "locacao", "8245"], "url": "https://www.planalto.gov.br/ccivil_03/leis/l8245.htm" },
+    { "id": "bemfamilia", "area": "civil", "sigla": "Lei 8.009/90", "nome": "Bem de Família — Lei nº 8.009/1990", "apelidos": ["bem de familia", "8009"], "url": "https://www.planalto.gov.br/ccivil_03/leis/l8009.htm" },
+    { "id": "jec", "area": "civil", "sigla": "Lei 9.099/95", "nome": "Juizados Especiais Cíveis e Criminais — Lei nº 9.099/1995", "apelidos": ["jec", "juizados", "9099"], "url": "https://www.planalto.gov.br/ccivil_03/leis/l9099.htm" },
+    { "id": "jef", "area": "civil", "sigla": "Lei 10.259/01", "nome": "Juizados Especiais Federais — Lei nº 10.259/2001", "apelidos": ["jef", "10259"], "url": "https://www.planalto.gov.br/ccivil_03/leis/leis_2001/l10259.htm" },
+    { "id": "idoso", "area": "civil", "sigla": "Lei 10.741/03", "nome": "Estatuto da Pessoa Idosa — Lei nº 10.741/2003", "apelidos": ["idoso", "estatuto do idoso", "10741"], "url": "https://www.planalto.gov.br/ccivil_03/leis/2003/l10.741.htm" },
+    { "id": "pcd", "area": "civil", "sigla": "Lei 13.146/15", "nome": "Estatuto da Pessoa com Deficiência — Lei nº 13.146/2015", "apelidos": ["pcd", "lbi", "13146"], "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13146.htm" },
+
+    { "id": "clt", "area": "trabalhista", "sigla": "CLT", "nome": "Consolidação das Leis do Trabalho — Decreto-Lei nº 5.452/1943", "apelidos": ["clt", "5452"], "url": "https://www.planalto.gov.br/ccivil_03/decreto-lei/del5452.htm" },
+    { "id": "fgts", "area": "trabalhista", "sigla": "Lei 8.036/90", "nome": "FGTS — Lei nº 8.036/1990", "apelidos": ["fgts", "8036"], "url": "https://www.planalto.gov.br/ccivil_03/leis/l8036consol.htm" },
+    { "id": "domesticos", "area": "trabalhista", "sigla": "LC 150/15", "nome": "Empregado Doméstico — Lei Complementar nº 150/2015", "apelidos": ["domestico", "domesticos", "lc150", "lc 150"], "url": "https://www.planalto.gov.br/ccivil_03/leis/lcp/lcp150.htm" },
+    { "id": "temporario", "area": "trabalhista", "sigla": "Lei 6.019/74", "nome": "Trabalho Temporário e Terceirização — Lei nº 6.019/1974", "apelidos": ["terceirizacao", "temporario", "6019"], "url": "https://www.planalto.gov.br/ccivil_03/leis/l6019.htm" },
+    { "id": "dsr", "area": "trabalhista", "sigla": "Lei 605/49", "nome": "Repouso Semanal Remunerado — Lei nº 605/1949", "apelidos": ["dsr", "rsr", "lei 605"], "url": "https://www.planalto.gov.br/ccivil_03/leis/l0605.htm" },
+    { "id": "decimoterceiro", "area": "trabalhista", "sigla": "Lei 4.090/62", "nome": "Gratificação de Natal (13º salário) — Lei nº 4.090/1962", "apelidos": ["decimo terceiro", "13 salario", "4090"], "url": "https://www.planalto.gov.br/ccivil_03/leis/l4090.htm" },
+    { "id": "segurodesemprego", "area": "trabalhista", "sigla": "Lei 7.998/90", "nome": "Seguro-Desemprego e Abono Salarial — Lei nº 7.998/1990", "apelidos": ["seguro desemprego", "7998"], "url": "https://www.planalto.gov.br/ccivil_03/leis/l7998.htm" },
+    { "id": "processotrabalho", "area": "trabalhista", "sigla": "Lei 5.584/70", "nome": "Normas de Direito Processual do Trabalho — Lei nº 5.584/1970", "apelidos": ["5584"], "url": "https://www.planalto.gov.br/ccivil_03/leis/l5584.htm" },
+
+    { "id": "beneficios", "area": "previdenciario", "sigla": "Lei 8.213/91", "nome": "Planos de Benefícios da Previdência Social — Lei nº 8.213/1991", "apelidos": ["8213", "lbps", "beneficios"], "url": "https://www.planalto.gov.br/ccivil_03/leis/l8213cons.htm" },
+    { "id": "custeio", "area": "previdenciario", "sigla": "Lei 8.212/91", "nome": "Organização da Seguridade Social e Custeio — Lei nº 8.212/1991", "apelidos": ["8212", "custeio"], "url": "https://www.planalto.gov.br/ccivil_03/leis/l8212cons.htm" },
+    { "id": "rps", "area": "previdenciario", "sigla": "Decreto 3.048/99", "nome": "Regulamento da Previdência Social — Decreto nº 3.048/1999", "apelidos": ["rps", "3048"], "url": "https://www.planalto.gov.br/ccivil_03/decreto/d3048.htm" },
+    { "id": "loas", "area": "previdenciario", "sigla": "Lei 8.742/93", "nome": "Lei Orgânica da Assistência Social (LOAS/BPC) — Lei nº 8.742/1993", "apelidos": ["loas", "bpc", "8742"], "url": "https://www.planalto.gov.br/ccivil_03/leis/l8742compilado.htm" },
+    { "id": "ec103", "area": "previdenciario", "sigla": "EC 103/19", "nome": "Reforma da Previdência — Emenda Constitucional nº 103/2019", "apelidos": ["ec103", "ec 103", "reforma da previdencia"], "url": "https://www.planalto.gov.br/ccivil_03/constituicao/emendas/emc/emc103.htm" }
+  ]
+}

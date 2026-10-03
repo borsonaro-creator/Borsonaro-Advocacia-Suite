@@ -1,0 +1,62 @@
+name: Atualizar leis e publicar site
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 9 * * 1' # toda segunda-feira, 06h17 (Brasília)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: publicar
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Testes do conversor
+        run: npm test
+
+      - name: Baixar leis do Planalto
+        id: atualizar
+        continue-on-error: true
+        run: node scripts/atualizar-leis.mjs
+
+      - name: Salvar textos atualizados no repositório
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if git diff --cached --quiet; then
+            echo "Nenhuma alteração nas leis."
+          else
+            git commit -m "Atualiza textos das leis ($(date -u +%Y-%m-%d))"
+            git push
+          fi
+
+      - name: Montar site
+        run: |
+          mkdir -p _site
+          cp -r index.html sw.js manifest.webmanifest leis.json css js icons data _site/
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4

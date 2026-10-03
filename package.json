@@ -1,0 +1,12 @@
+{
+  "name": "consulta-legislacao",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Consulta rápida à legislação do Planalto (civil, trabalhista e previdenciária), no celular e no computador.",
+  "scripts": {
+    "atualizar": "node scripts/atualizar-leis.mjs",
+    "test": "node --test scripts/*.test.mjs",
+    "servir": "python3 -m http.server 8080"
+  }
+}

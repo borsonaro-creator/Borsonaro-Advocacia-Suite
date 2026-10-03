@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Legislação</title>
+  <meta name="description" content="Consulta rápida à legislação federal (Planalto): civil, trabalhista e previdenciária.">
+  <meta name="theme-color" content="#1f3a5f" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#18212c" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icone.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icone-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Legislação">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <header class="topo">
+    <button class="icone-btn" id="btn-voltar" aria-label="Voltar" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <a class="marca" href="#/" id="marca">
+      <span class="marca-icone" aria-hidden="true">§</span>
+      <span class="marca-texto" id="titulo-topo">Legislação</span>
+    </a>
+    <div class="topo-acoes">
+      <button class="icone-btn" id="btn-indice" aria-label="Índice da lei" title="Índice" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      </button>
+      <button class="icone-btn" id="btn-config" aria-label="Preferências de leitura" title="Preferências">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18L9 6l5 12M5.8 14h6.4M15 18l3-7 3 7M15.9 16h4.2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="app" tabindex="-1"></main>
+
+  <div class="painel" id="painel" hidden>
+    <div class="painel-fundo" data-fechar></div>
+    <section class="painel-caixa" role="dialog" aria-modal="true" aria-labelledby="painel-titulo">
+      <header class="painel-topo">
+        <h2 id="painel-titulo"></h2>
+        <button class="icone-btn" data-fechar aria-label="Fechar">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </header>
+      <div class="painel-corpo" id="painel-corpo"></div>
+    </section>
+  </div>
+
+  <div class="aviso" id="aviso" role="status" aria-live="polite"></div>
+
+  <script src="js/app.js" type="module"></script>
+</body>
+</html>
