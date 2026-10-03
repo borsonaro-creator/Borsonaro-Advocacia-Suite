@@ -28,6 +28,8 @@ jobs:
           node scripts/verificar.mjs > relatorio.md
           cat relatorio.md >> "$GITHUB_STEP_SUMMARY"
           cat relatorio.md
+      - name: Diagnóstico de trechos do HTML original
+        run: node scripts/diagnostico.mjs
       - uses: actions/upload-artifact@v4
         with:
           name: conferencia
