@@ -6,7 +6,7 @@
     { "id": "previdenciario", "nome": "Direito Previdenciário" }
   ],
   "leis": [
-    { "id": "cf", "area": "constitucional", "sigla": "CF/88", "nome": "Constituição Federal de 1988", "apelidos": ["cf", "crfb", "constituicao"], "url": "https://www.planalto.gov.br/ccivil_03/constituicao/constituicaocompilado.htm" },
+    { "id": "cf", "area": "constitucional", "sigla": "CF/88", "nome": "Constituição Federal de 1988", "apelidos": ["cf", "crfb", "constituicao"], "partes": [{ "apelido": "adct", "nome": "ADCT", "contexto": "ATO DAS DISPOSIÇÕES CONSTITUCIONAIS TRANSITÓRIAS" }], "url": "https://www.planalto.gov.br/ccivil_03/constituicao/constituicaocompilado.htm" },
 
     { "id": "cc", "area": "civil", "sigla": "CC", "nome": "Código Civil — Lei nº 10.406/2002", "apelidos": ["cc", "codigo civil", "10406"], "url": "https://www.planalto.gov.br/ccivil_03/leis/2002/l10406compilada.htm" },
     { "id": "cpc", "area": "civil", "sigla": "CPC", "nome": "Código de Processo Civil — Lei nº 13.105/2015", "apelidos": ["cpc", "13105"], "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13105.htm" },

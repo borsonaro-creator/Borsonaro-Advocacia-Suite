@@ -7,7 +7,7 @@ sem instalar nada.
 ## O que ele faz
 
 - **Ir direto ao artigo**: digite `CLT 477`, `CC 186`, `CPC art. 300`, `8213 art 42`,
-  `LOAS 20`, `CF 7`, `CLT 10-A`… e o artigo abre destacado.
+  `LOAS 20`, `CF 7`, `ADCT 10`, `CLT 10-A`… e o artigo abre destacado.
 - **Buscar por texto**: digite qualquer termo (`férias proporcionais`, `"dano moral"` entre
   aspas para expressão exata) para buscar em todas as leis, ou só na lei aberta.
 - **Leitura confortável**: tamanho de letra ajustável, fonte com ou sem serifa, tema claro/escuro.
@@ -16,6 +16,9 @@ sem instalar nada.
   aparecem em letra menor.
 - **Toque no número do artigo** para: copiar o texto, copiar com citação (com fonte e data de
   acesso), copiar link direto, compartilhar (WhatsApp, e-mail…), favoritar ou conferir no Planalto.
+- **Versões repetidas**: quando o Planalto mantém mais de uma redação sem riscar (ex.: textos
+  de MPs com vigência encerrada ou suspensa), o app abre a de redação mais recente e avisa,
+  com botão para ver as outras. Na CF, o ADCT não se mistura com a parte permanente.
 - **Índice** de títulos/capítulos/seções de cada lei.
 - **Favoritos e recentes** na tela inicial.
 - **Funciona offline** depois que a lei foi aberta uma vez, e pode ser “instalado” na tela
@@ -42,6 +45,9 @@ sites), então o texto é baixado por um script e guardado em `data/`:
   **toda segunda-feira**, baixa cada lei do Planalto, converte em artigos e publica o site.
   Pode ser executado a qualquer momento em *Actions → Atualizar leis e publicar site → Run workflow*.
 - Se uma lei falhar no download, a versão anterior é mantida.
+- O workflow **Conferir conversão das leis** ([`.github/workflows/verificar.yml`](.github/workflows/verificar.yml))
+  gera um relatório por lei: artigos faltando na numeração, "Art." não reconhecido, números
+  vigentes repetidos e amostras de artigos conhecidos. Rode-o depois de mudar o conversor.
 - Cada lei mostra a data em que foi verificada no Planalto e um link para a página oficial.
 
 ## Colocar no ar (uma vez só)

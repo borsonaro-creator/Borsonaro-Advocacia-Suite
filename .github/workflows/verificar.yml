@@ -1,0 +1,48 @@
+name: Conferir conversão das leis
+
+# Baixa as leis do Planalto, converte e gera um relatório de conferência
+# (sem publicar o site). Os textos convertidos são salvos em data/ na branch.
+on:
+  push:
+    branches: ['claude/**']
+    paths: ['scripts/**', 'leis.json', '.github/workflows/verificar.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  conferir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm test
+      - name: Baixar leis do Planalto
+        continue-on-error: true
+        run: node scripts/atualizar-leis.mjs --salvar-fontes
+      - name: Relatório
+        run: |
+          node scripts/verificar.mjs > relatorio.md
+          cat relatorio.md >> "$GITHUB_STEP_SUMMARY"
+          cat relatorio.md
+      - name: Diagnóstico de trechos do HTML original
+        run: node scripts/diagnostico.mjs
+      - name: Salvar textos convertidos na branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if ! git diff --cached --quiet; then
+            git commit -m "Atualiza textos das leis (conferência)"
+            git push
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: conferencia
+          path: |
+            relatorio.md
+            data/
+            fontes/

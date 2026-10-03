@@ -90,7 +90,7 @@ function encontrarOcorrencias(textoNorm, termos) {
 }
 
 const RE_NOTA = /\((?:\s*(?:Reda[çc][ãa]o dada|Reda[çc][ãa]o pela|Inclu[íi]d[oa]|Revogad[oa]|Vide|Acrescentad[oa]|Acrescid[oa]|Renumerad[oa]|Vig[êe]ncia|Regulamento|Regulamenta[çc][ãa]o|Promulga[çc][ãa]o|Produ[çc][ãa]o de efeito|Partes? mantidas?|Com reda[çc][ãa]o|Restabelecid|Suspens|Declarad|Revoga[çc][ãa]o|Express[ãa]o|Em vigor|Convers[ãa]o|Transformad|Inconstitucional|Vetad[oa]|VETAD[OA]|Mantid|Prorrogad|Ratificad|Retificad|Texto|Medida Provis|Execu[çc][ãa]o suspensa|Efic[áa]cia suspensa|Reproduzid))(?:[^()]|\([^()]*\))*\)/gi;
-const RE_PREFIXO_ART = /^Art(?:igo)?\.?\s*(?:\d{1,2}(?:\.\d{3})+|\d{1,4})\s*(?:\.?\s*[º°o](?![a-zà-ú]))?\s*(?:-[A-Z]{1,2}(?![A-Za-zÀ-ú]))?\.?/;
+const RE_PREFIXO_ART = /^Art(?:igo)?s?\.?\s*(?:\d{1,2}(?:\.\d{3})+|\d{1,4})(?:[A-Z]{1,2}(?![A-Za-zÀ-ú]))?\s*(?:\.?\s*[º°o](?![a-zà-ú]))?(?:\s*-[A-Z]{1,2}(?![A-Za-zÀ-ú]))?\.?/;
 
 function classeDoBloco(t) {
   if (/^(§|Par[áa]grafo [úu]nico)/i.test(t)) return 'par';
@@ -212,8 +212,14 @@ function processarLei(meta, dados) {
     u.revogada = u.blocos.every((b) => b.s) || (u.tipo === 'a' && /^[^()]{0,40}\(\s*Revogad[oa]/i.test(u.blocos[0].t) && u.blocos.length === 1);
     u.todaTachada = u.blocos.every((b) => b.s);
     if (u.tipo === 'a') {
-      if (!porArtigo.has(u.art)) porArtigo.set(u.art, []);
-      porArtigo.get(u.art).push(u);
+      const registrar = (n) => {
+        if (!porArtigo.has(n)) porArtigo.set(n, []);
+        porArtigo.get(n).push(u);
+      };
+      registrar(u.art);
+      // "Art. 1.620 a 1.629 (Revogados)": qualquer número do intervalo leva a ele.
+      const ate = u.blocos[0].ate;
+      if (ate) for (let n = Number(u.art) + 1; n <= ate; n++) registrar(String(n));
     }
   });
 
@@ -275,8 +281,32 @@ function trechoDaUnidade(u, termos) {
   return (ini > 0 ? '… ' : '') + html + (fim < bruto.length ? ' …' : '');
 }
 
+// Entre versões do mesmo artigo, prefere a de nota de redação mais recente e
+// evita as marcadas com vigência encerrada (ex.: MPs que caducaram).
+function melhorVersao(lista) {
+  const pontos = (u) => {
+    const t = u.blocos.filter((b) => !b.s).map((b) => b.t).join(' ');
+    let p = 0;
+    if (/vig[êe]ncia (encerrada|suspensa)|efic[áa]cia suspensa|perdeu (a )?efic[áa]cia|rejeitad[oa]/i.test(t)) p -= 10000;
+    if (/^[^()]{0,60}\(\s*revogad[oa]/i.test(t)) p -= 5000;
+    // Ano mais recente nas notas "(Redação dada pela Lei nº …, de 9.12.1976)".
+    const notas = t.match(/\((?:Reda[çc][ãa]o dada|Inclu[íi]d[oa]|Restabelecid[oa]|Acrescid[oa]|Renumerad[oa])[^()]*\)/gi) || [];
+    const anos = notas.flatMap((n) => (n.match(/\b(?:19|20)\d{2}\b/g) || []).map(Number));
+    return p + (anos.length ? Math.max(...anos) : 0);
+  };
+  // Empate: a que vem por último no texto (o Planalto põe a mais nova depois).
+  return lista.reduce((melhor, u) => (pontos(u) >= pontos(melhor) ? u : melhor));
+}
+
+function rotuloParte(lei, u) {
+  const p = (lei.meta.partes || []).find((x) => normalizar(u.ctx || '').includes(normalizar(x.contexto)));
+  return p ? `Art. ${u.art} do ${p.nome}` : `Art. ${u.art} da ${lei.meta.sigla}`;
+}
+
 function rotuloArtigo(lei, u) {
-  return u.tipo === 'a' ? `${lei.meta.sigla}, art. ${u.art.replace(/^(\d+)/, (n) => Number(n).toLocaleString('pt-BR'))}` : lei.meta.sigla;
+  if (u.tipo !== 'a') return lei.meta.sigla;
+  const p = (lei.meta.partes || []).find((x) => normalizar(u.ctx || '').includes(normalizar(x.contexto)));
+  return `${p ? p.nome : lei.meta.sigla}, art. ${u.art.replace(/^(\d+)/, (n) => Number(n).toLocaleString('pt-BR'))}`;
 }
 
 // ---------- Interpretação da busca do início ----------
@@ -284,11 +314,12 @@ function interpretar(q) {
   const norm = normalizar(q).replace(/(\d)\.(?=\d{3}\b)/g, '$1').replace(/(\d{3,5})\/\d{2,4}\b/g, '$1').replace(/\s+/g, ' ').trim();
   let melhor = null;
   for (const lei of catalogo.leis) {
-    const apelidos = [lei.id, normalizar(lei.sigla).replace(/\./g, ''), ...lei.apelidos.map(normalizar)];
-    for (const a of new Set(apelidos)) {
+    const apelidos = [lei.id, normalizar(lei.sigla).replace(/\./g, ''), ...lei.apelidos.map(normalizar)].map((a) => [a, null]);
+    for (const p of lei.partes || []) apelidos.push([normalizar(p.apelido), p]);
+    for (const [a, parte] of apelidos) {
       const re = new RegExp(`(^|[\\s,])(?:lei |decreto |dec |lc |ec )?(?:n[.o]* ?)?${a.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}(?=$|[\\s,.])`);
       const m = re.exec(norm);
-      if (m && (!melhor || a.length > melhor.apelido.length)) melhor = { lei, apelido: a, m };
+      if (m && (!melhor || a.length > melhor.apelido.length)) melhor = { lei, apelido: a, m, parte };
     }
   }
   if (!melhor) return { tipo: 'busca', q };
@@ -296,7 +327,7 @@ function interpretar(q) {
     .replace(/\b(arts?|artigos?)\b\.?/g, ' ').replace(/[,;]/g, ' ').replace(/\s+/g, ' ').trim();
   const art = /^(\d{1,4})(?:\s*o\b)?(?:\s*-?\s*([a-z])\b)?/.exec(resto);
   if (art && resto.replace(art[0], '').trim().split(' ').filter(Boolean).every((p) => /^(inc|inciso|par|paragrafo|§|caput|alinea|[ivxlc]+|\d+o?|unico|[a-z]\)?)$/.test(p))) {
-    return { tipo: 'artigo', lei: melhor.lei, art: art[2] ? `${art[1]}-${art[2].toUpperCase()}` : art[1] };
+    return { tipo: 'artigo', lei: melhor.lei, parte: melhor.parte, art: art[2] ? `${art[1]}-${art[2].toUpperCase()}` : art[1] };
   }
   if (!resto) return { tipo: 'lei', lei: melhor.lei };
   return { tipo: 'buscaLei', lei: melhor.lei, q: resto };
@@ -445,7 +476,7 @@ function telaInicio() {
     if (!q) { dica.innerHTML = dicaPadrao; return; }
     const r = interpretar(q);
     dica.innerHTML = '↵ ' + ({
-      artigo: () => `Abrir <b>${esc(r.lei.sigla)}, art. ${esc(r.art)}</b>`,
+      artigo: () => `Abrir <b>${esc(r.parte ? r.parte.nome : r.lei.sigla)}, art. ${esc(r.art)}</b>`,
       lei: () => `Abrir <b>${esc(r.lei.nome)}</b>`,
       buscaLei: () => `Buscar “${esc(r.q)}” em <b>${esc(r.lei.sigla)}</b>`,
       busca: () => `Buscar “${esc(q)}” em todas as leis`,
@@ -456,7 +487,7 @@ function telaInicio() {
     const q = campo.value.trim();
     if (!q) return;
     const r = interpretar(q);
-    if (r.tipo === 'artigo') location.hash = `#/${r.lei.id}/${encodeURIComponent(r.art)}`;
+    if (r.tipo === 'artigo') location.hash = `#/${r.lei.id}/${encodeURIComponent(r.art)}${r.parte ? '?parte=' + r.parte.apelido : ''}`;
     else if (r.tipo === 'lei') location.hash = `#/${r.lei.id}`;
     else if (r.tipo === 'buscaLei') location.hash = `#/${r.lei.id}?q=${encodeURIComponent(r.q)}`;
     else location.hash = `#/busca?q=${encodeURIComponent(q)}`;
@@ -483,7 +514,7 @@ async function telaBuscaGlobal(q) {
     const nova = $('#q').value.trim();
     if (!nova) return;
     const r = interpretar(nova);
-    if (r.tipo === 'artigo') location.hash = `#/${r.lei.id}/${encodeURIComponent(r.art)}`;
+    if (r.tipo === 'artigo') location.hash = `#/${r.lei.id}/${encodeURIComponent(r.art)}${r.parte ? '?parte=' + r.parte.apelido : ''}`;
     else if (r.tipo === 'lei') location.hash = `#/${r.lei.id}`;
     else if (r.tipo === 'buscaLei') location.hash = `#/${r.lei.id}?q=${encodeURIComponent(r.q)}`;
     else location.hash = `#/busca?q=${encodeURIComponent(nova)}`;
@@ -534,10 +565,20 @@ function cartaoResultado(lei, u, termos, qs) {
 }
 
 // Rola até o elemento descontando o topo e a barra de busca fixos.
+// Como o texto usa content-visibility (alturas estimadas fora da tela), a
+// posição muda depois que os trechos são desenhados: corrige até estabilizar.
+let rolagemId = 0;
 function rolarPara(el) {
   if (!el) return;
-  const fixo = ($('.topo')?.offsetHeight || 0) + ($('.barra-leitor')?.offsetHeight || 0) + 8;
-  window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - fixo);
+  const id = ++rolagemId;
+  const ajustar = (tentativa) => {
+    if (id !== rolagemId) return;
+    const fixo = ($('.topo')?.offsetHeight || 0) + ($('.barra-leitor')?.offsetHeight || 0) + 8;
+    const delta = el.getBoundingClientRect().top - fixo;
+    if (Math.abs(delta) > 2) window.scrollTo(0, window.scrollY + delta);
+    if (tentativa < 12 && (Math.abs(delta) > 2 || tentativa < 2)) requestAnimationFrame(() => ajustar(tentativa + 1));
+  };
+  ajustar(0);
 }
 
 // ---------- Leitor ----------
@@ -548,7 +589,7 @@ const leitor = {
   achados: [],
   posicao: -1,
 
-  async abrir(id, art, q, uForcada) {
+  async abrir(id, art, q, uForcada, parteId) {
     const mesmaLei = this.lei?.meta.id === id;
     if (!mesmaLei) {
       configurarTopo({ titulo: catalogo.porId.get(id)?.sigla || 'Lei', voltar: true });
@@ -570,7 +611,8 @@ const leitor = {
       this.renderizar();
     }
     registrarRecente(id, art || null);
-    if (art) this.irParaArtigo(art, uForcada);
+    if (!art) this.avisoArtigo(null);
+    if (art) this.irParaArtigo(art, uForcada, (this.lei.meta.partes || []).find((p) => p.apelido === parteId));
     else if (this.termos && this.achados.length) this.irParaAchado(0);
     else if (!mesmaLei) window.scrollTo(0, 0);
   },
@@ -587,6 +629,7 @@ const leitor = {
           <button type="button" class="icone-btn limpar" id="limpar-leitor" aria-label="Limpar busca" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </form>
         <div id="resumo-leitor" class="resumo-busca" hidden></div>
+        <div id="aviso-artigo" class="resumo-busca aviso-artigo" hidden></div>
       </div>
       <div class="cabecalho-lei">
         <h1>${esc(meta.nome)}</h1>
@@ -627,6 +670,10 @@ const leitor = {
     texto.addEventListener('click', acionar);
     texto.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); acionar(e); } });
     $('#topo-pagina').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    $('#aviso-artigo').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-u]');
+      if (b) this.destacar(this.lei.unidades[Number(b.dataset.u)]);
+    });
     $('#resumo-leitor').addEventListener('click', (e) => {
       const b = e.target.closest('[data-nav]');
       if (!b) return;
@@ -645,7 +692,7 @@ const leitor = {
         continue;
       }
       html.push(`<div class="unidade${u.todaTachada ? ' toda-revogada' : ''}" id="u${u.i}">${u.blocos.map((b) => {
-        const cls = [classeDoBloco(b.t), b.s ? 'rev rev-bloco' : ''].filter(Boolean).join(' ');
+        const cls = [b.c ? 'citacao' : classeDoBloco(b.t), b.s ? 'rev rev-bloco' : ''].filter(Boolean).join(' ');
         return `<p${cls ? ` class="${cls}"` : ''}>${htmlDoBloco(b, termos, u.i)}</p>`;
       }).join('')}</div>`);
     }
@@ -696,29 +743,56 @@ const leitor = {
     });
   },
 
-  irParaArtigo(art, uForcada) {
+  irParaArtigo(art, uForcada, parte) {
     const lista = this.lei.porArtigo.get(art) || this.lei.porArtigo.get(art.toUpperCase());
+    this.avisoArtigo(null);
     if (!lista) { avisar(`Art. ${art} não encontrado nesta lei`); return; }
-    if (uForcada !== undefined) {
-      const u = this.lei.unidades[uForcada];
-      if (u) return this.destacar(u);
-    }
-    const vigentes = lista.filter((u) => !u.todaTachada);
-    if (vigentes.length > 1) {
-      // Ex.: CF art. 1º e ADCT art. 1º — deixa o usuário escolher.
-      this.destacar(vigentes[0]);
-      abrirPainel(`Art. ${art} aparece ${vigentes.length} vezes`, `<div class="resultados">${vigentes.map((u) => `<button class="resultado" data-u="${u.i}">
-        <div class="ctx">${esc(u.ctx || 'Início')}</div><div class="trecho">${esc(textoLimpo(u.blocos.find((b) => !b.s) || u.blocos[0], false)).slice(0, 220)}</div></button>`).join('')}</div>`, (corpo) => {
-        corpo.addEventListener('click', (e) => {
-          const b = e.target.closest('[data-u]');
-          if (!b) return;
-          fecharPainel();
-          this.destacar(this.lei.unidades[Number(b.dataset.u)]);
-        });
-      });
+    if (uForcada !== undefined && this.lei.unidades[uForcada]) {
+      this.destacar(this.lei.unidades[uForcada]);
+      this.avisoOutras(art, this.lei.unidades[uForcada]);
       return;
     }
-    this.destacar(vigentes[0] || lista[0]);
+    let candidatos = lista.filter((u) => !u.todaTachada);
+    if (!candidatos.length) candidatos = lista;
+    // Ex.: CLT — "Art. 1º Fica aprovada a Consolidação…" (decreto-lei, antes de
+    // qualquer título) não deve competir com o art. 1º da própria CLT.
+    if (candidatos.some((u) => u.ctx)) candidatos = candidatos.filter((u) => u.ctx);
+    // Partes com numeração própria (ADCT): só entram quando pedidas.
+    const naParte = (u) => parte && normalizar(u.ctx || '').includes(normalizar(parte.contexto));
+    const emParteSeparada = (u) => (this.lei.meta.partes || []).some((p) => normalizar(u.ctx || '').includes(normalizar(p.contexto)));
+    if (parte) {
+      const daParte = candidatos.filter(naParte);
+      if (daParte.length) candidatos = daParte;
+    } else if (candidatos.some((u) => !emParteSeparada(u))) {
+      candidatos = candidatos.filter((u) => !emParteSeparada(u));
+    }
+    const escolhido = melhorVersao(candidatos);
+    this.destacar(escolhido);
+    this.avisoOutras(art, escolhido);
+  },
+
+  // Aviso fixo na barra quando o número aparece mais de uma vez sem estar
+  // riscado: outras versões mantidas pelo Planalto ou o mesmo número no ADCT.
+  avisoOutras(art, escolhido) {
+    const outras = (this.lei.porArtigo.get(art) || []).filter((u) => u !== escolhido && (!u.todaTachada || prefs.revogados) && u.ctx !== undefined);
+    const versoes = outras.filter((u) => u.ctx === escolhido.ctx && u.ctx);
+    const partes = outras.filter((u) => u.ctx !== escolhido.ctx && u.ctx);
+    if (!versoes.length && !partes.length) return;
+    const botoes = [
+      ...versoes.map((u, k) => `<button class="botao" data-u="${u.i}">Outra versão${versoes.length > 1 ? ' ' + (k + 1) : ''}</button>`),
+      ...partes.map((u) => `<button class="botao" data-u="${u.i}">${esc(rotuloParte(this.lei, u))}</button>`),
+    ];
+    const texto = versoes.length
+      ? `O art. ${esc(art)} aparece em ${versoes.length + 1} versões não riscadas no Planalto. Mostrando a de redação mais recente — confira as notas.`
+      : `Também existe art. ${esc(art)} em outra parte do texto.`;
+    this.avisoArtigo(`<span>${texto}</span><span class="nav">${botoes.join('')}</span>`);
+  },
+
+  avisoArtigo(html) {
+    const el = $('#aviso-artigo');
+    if (!el) return;
+    el.hidden = !html;
+    el.innerHTML = html || '';
   },
 
   destacar(u) {
@@ -763,7 +837,9 @@ const leitor = {
   },
 
   indice() {
-    const titulos = this.lei.unidades.filter((u) => u.tipo === 'h' && !u.blocos.every((b) => b.s));
+    let titulos = this.lei.unidades.filter((u) => u.tipo === 'h' && !u.blocos.every((b) => b.s));
+    // Só divisões reais (Livro, Título, Capítulo, Seção…); sem "Vigência", assinaturas etc.
+    if (titulos.some((u) => u.nivel)) titulos = titulos.filter((u) => u.nivel);
     if (!titulos.length) { avisar('Esta lei não tem divisões'); return; }
     abrirPainel('Índice', `<nav class="indice">${titulos.map((u) => {
       const vis = u.blocos.filter((b) => !b.s);
@@ -809,7 +885,7 @@ async function rotear() {
   if (!partes.length) return telaInicio();
   if (partes[0] === 'busca') return telaBuscaGlobal(params.get('q') || '');
   const u = params.get('u');
-  return leitor.abrir(partes[0], partes[1] || null, params.get('q') || '', u !== null ? Number(u) : undefined);
+  return leitor.abrir(partes[0], partes[1] || null, params.get('q') || '', u !== null ? Number(u) : undefined, params.get('parte'));
 }
 window.addEventListener('hashchange', rotear);
 rotear().catch((e) => {

@@ -5,6 +5,7 @@
 //   node scripts/atualizar-leis.mjs            # todas as leis
 //   node scripts/atualizar-leis.mjs clt cc     # só as leis indicadas
 //   node scripts/atualizar-leis.mjs --local    # usa fontes/<id>.htm salvos manualmente
+//   node scripts/atualizar-leis.mjs --salvar-fontes  # guarda o HTML baixado em fontes/
 //
 // Se uma lei falhar, o arquivo anterior em data/ é mantido.
 
@@ -20,6 +21,7 @@ const FONTES = path.join(RAIZ, 'fontes');
 
 const args = process.argv.slice(2);
 const usarLocal = args.includes('--local');
+const salvarFontes = args.includes('--salvar-fontes');
 const filtro = new Set(args.filter((a) => !a.startsWith('--')));
 
 const existe = (p) => access(p).then(() => true, () => false);
@@ -40,8 +42,7 @@ async function baixar(url) {
         signal: AbortSignal.timeout(90_000),
       });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      const bytes = new Uint8Array(await resp.arrayBuffer());
-      return decodificarBytes(bytes, resp.headers.get('content-type') || '');
+      return { bytes: new Uint8Array(await resp.arrayBuffer()), contentType: resp.headers.get('content-type') || '' };
     } catch (e) {
       ultimoErro = e;
       if (tentativa < 3) await espera(2000 * tentativa);
@@ -56,7 +57,12 @@ async function obterHtml(lei) {
     if (!(await existe(local))) throw new Error(`arquivo ${path.relative(RAIZ, local)} não encontrado`);
     return decodificarBytes(await readFile(local));
   }
-  return baixar(lei.url);
+  const { bytes, contentType } = await baixar(lei.url);
+  if (salvarFontes) {
+    await mkdir(FONTES, { recursive: true });
+    await writeFile(local, bytes);
+  }
+  return decodificarBytes(bytes, contentType);
 }
 
 async function main() {
