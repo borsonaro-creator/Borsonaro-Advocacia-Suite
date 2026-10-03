@@ -1,7 +1,7 @@
 name: Conferir conversão das leis
 
 # Baixa as leis do Planalto, converte e gera um relatório de conferência
-# (sem publicar nada e sem alterar o repositório).
+# (sem publicar o site). Os textos convertidos são salvos em data/ na branch.
 on:
   push:
     branches: ['claude/**']
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   conferir:
@@ -30,6 +30,15 @@ jobs:
           cat relatorio.md
       - name: Diagnóstico de trechos do HTML original
         run: node scripts/diagnostico.mjs
+      - name: Salvar textos convertidos na branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if ! git diff --cached --quiet; then
+            git commit -m "Atualiza textos das leis (conferência)"
+            git push
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: conferencia

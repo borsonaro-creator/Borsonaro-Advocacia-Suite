@@ -28,6 +28,10 @@ test('identifica artigos e normaliza números', () => {
   assert.equal(numeroArtigo('Art. 5º Todos são iguais'), '5');
   assert.equal(numeroArtigo('Artigo 3'), '3');
   assert.equal(numeroArtigo('Arte'), null);
+  assert.equal(numeroArtigo('Art. 22A. A contribuição devida pela agroindústria'), '22-A');
+  assert.equal(numeroArtigo('Art. 9º-C. As aplicações'), '9-C');
+  assert.equal(numeroArtigo('Art. 10 - A empresa'), '10');
+  assert.equal(numeroArtigo('Art 1º Nos processos'), '1');
 });
 
 test('marca texto tachado inteiro e parcial', () => {

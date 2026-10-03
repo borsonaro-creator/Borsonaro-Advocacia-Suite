@@ -178,7 +178,7 @@ function consolidarSegmentos(segs) {
   return unidos;
 }
 
-const RE_ARTIGO = /^Art(?:igo)?s?\.?\s*(\d{1,2}(?:\.\d{3})+|\d{1,4})\s*(?:\.?\s*[º°o](?![a-zà-ú]))?\s*(?:-([A-Z]{1,2})(?![A-Za-zÀ-ú]))?/;
+const RE_ARTIGO = /^Art(?:igo)?s?\.?\s*(\d{1,2}(?:\.\d{3})+|\d{1,4})(?:([A-Z]{1,2})(?![A-Za-zÀ-ú]))?\s*(?:\.?\s*[º°o](?![a-zà-ú]))?(?:\s*-([A-Z]{1,2})(?![A-Za-zÀ-ú]))?/;
 const RE_TITULO = /^(PARTE (GERAL|ESPECIAL)|PARTE\s+[IVXLC]+\b|LIVRO\b|LIVRO COMPLEMENTAR|T[ÍI]TULO\b|CAP[ÍI]TULO\b|SE[ÇC][ÃA]O\b|SUBSE[ÇC][ÃA]O\b|Se[çc][ãa]o\s+[IVXLC]+|Subse[çc][ãa]o\s+[IVXLC]+|ATO DAS DISPOSI[ÇC][ÕO]ES|DISPOSI[ÇC][ÕO]ES (GERAIS|FINAIS|TRANSIT[ÓO]RIAS|PRELIMINARES)|PRE[ÂA]MBULO)/;
 const BOILERPLATE = /^(Presid[êe]ncia da Rep[úu]blica|Casa Civil|Secretaria[- ]Geral|Subchefia para Assuntos Jur[íi]dicos|Secretaria Especial para Assuntos Jur[íi]dicos)$/i;
 
@@ -196,7 +196,8 @@ export function numeroArtigo(texto) {
   const m = RE_ARTIGO.exec(texto);
   if (!m) return null;
   const num = m[1].replace(/\./g, '');
-  return m[2] ? `${num}-${m[2].toUpperCase()}` : num;
+  const letra = m[2] || m[3]; // "Art. 22A" ou "Art. 22-A"
+  return letra ? `${num}-${letra.toUpperCase()}` : num;
 }
 
 function pareceTituloEmCaixaAlta(t) {
