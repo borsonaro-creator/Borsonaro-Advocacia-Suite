@@ -212,8 +212,14 @@ function processarLei(meta, dados) {
     u.revogada = u.blocos.every((b) => b.s) || (u.tipo === 'a' && /^[^()]{0,40}\(\s*Revogad[oa]/i.test(u.blocos[0].t) && u.blocos.length === 1);
     u.todaTachada = u.blocos.every((b) => b.s);
     if (u.tipo === 'a') {
-      if (!porArtigo.has(u.art)) porArtigo.set(u.art, []);
-      porArtigo.get(u.art).push(u);
+      const registrar = (n) => {
+        if (!porArtigo.has(n)) porArtigo.set(n, []);
+        porArtigo.get(n).push(u);
+      };
+      registrar(u.art);
+      // "Art. 1.620 a 1.629 (Revogados)": qualquer número do intervalo leva a ele.
+      const ate = u.blocos[0].ate;
+      if (ate) for (let n = Number(u.art) + 1; n <= ate; n++) registrar(String(n));
     }
   });
 
@@ -645,7 +651,7 @@ const leitor = {
         continue;
       }
       html.push(`<div class="unidade${u.todaTachada ? ' toda-revogada' : ''}" id="u${u.i}">${u.blocos.map((b) => {
-        const cls = [classeDoBloco(b.t), b.s ? 'rev rev-bloco' : ''].filter(Boolean).join(' ');
+        const cls = [b.c ? 'citacao' : classeDoBloco(b.t), b.s ? 'rev rev-bloco' : ''].filter(Boolean).join(' ');
         return `<p${cls ? ` class="${cls}"` : ''}>${htmlDoBloco(b, termos, u.i)}</p>`;
       }).join('')}</div>`);
     }
@@ -703,7 +709,10 @@ const leitor = {
       const u = this.lei.unidades[uForcada];
       if (u) return this.destacar(u);
     }
-    const vigentes = lista.filter((u) => !u.todaTachada);
+    let vigentes = lista.filter((u) => !u.todaTachada);
+    // Ex.: CLT — "Art. 1º Fica aprovada a Consolidação…" (decreto-lei, antes de
+    // qualquer título) não deve competir com o art. 1º da própria CLT.
+    if (vigentes.some((u) => u.ctx)) vigentes = vigentes.filter((u) => u.ctx);
     if (vigentes.length > 1) {
       // Ex.: CF art. 1º e ADCT art. 1º — deixa o usuário escolher.
       this.destacar(vigentes[0]);
@@ -763,7 +772,9 @@ const leitor = {
   },
 
   indice() {
-    const titulos = this.lei.unidades.filter((u) => u.tipo === 'h' && !u.blocos.every((b) => b.s));
+    let titulos = this.lei.unidades.filter((u) => u.tipo === 'h' && !u.blocos.every((b) => b.s));
+    // Só divisões reais (Livro, Título, Capítulo, Seção…); sem "Vigência", assinaturas etc.
+    if (titulos.some((u) => u.nivel)) titulos = titulos.filter((u) => u.nivel);
     if (!titulos.length) { avisar('Esta lei não tem divisões'); return; }
     abrirPainel('Índice', `<nav class="indice">${titulos.map((u) => {
       const vis = u.blocos.filter((b) => !b.s);

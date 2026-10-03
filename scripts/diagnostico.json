@@ -1,9 +1,4 @@
 [
-  { "lei": "cf", "estatisticas": true, "padroes": ["Revogad", "Art\\. 7º São direitos"], "contexto": 700 },
-  { "lei": "cc", "estatisticas": true, "padroes": ["1\\.368-C\\.", "1\\.620", "1\\.629"], "contexto": 500 },
-  { "lei": "cpc", "estatisticas": true, "padroes": ["Para a concessão da tutela de urgência", "1\\.063\\. Os juizados"], "contexto": 400 },
-  { "lei": "clt", "estatisticas": true, "padroes": ["75-B\\. Considera-se", "DECRETA:"], "contexto": 600 },
-  { "lei": "pcd", "estatisticas": true, "padroes": ["1\\.783-A", "Art\\. 128"], "contexto": 1500 },
-  { "lei": "lindb", "estatisticas": true, "padroes": [] },
-  { "lei": "loas", "estatisticas": true, "padroes": [] }
+  { "lei": "dsr", "padroes": ["Todo empregado tem direito a um descanso"], "contexto": 900 },
+  { "lei": "beneficios", "padroes": ["Art\\. 86\\. O auxílio-acidente"], "contexto": 500 }
 ]

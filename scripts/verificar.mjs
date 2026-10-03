@@ -26,7 +26,7 @@ async function main() {
   const catalogo = JSON.parse(await readFile(path.join(RAIZ, 'leis.json'), 'utf8'));
   const status = JSON.parse(await readFile(path.join(RAIZ, 'data/status.json'), 'utf8'));
   const linhas = ['# Conferência da conversão das leis', ''];
-  const resumo = ['| Lei | Situação | Artigos | Maior nº | Faltando na numeração | Blocos tachados | "Art." não reconhecido |', '|---|---|---|---|---|---|---|'];
+  const resumo = ['| Lei | Situação | Artigos | Maior nº | Faltando na numeração | Vigentes repetidos | Tachados | Citados | "Art." não reconhecido |', '|---|---|---|---|---|---|---|---|---|'];
   const detalhes = [];
 
   for (const lei of catalogo.leis) {
@@ -39,15 +39,30 @@ async function main() {
     const { blocos } = parsePlanalto(decodificarBytes(await readFile(fonte)));
     const arts = blocos.filter((b) => b.k === 'a');
     const nums = new Set(arts.map((b) => numBase(b.a)));
+    for (const b of arts) if (b.ate) for (let n = numBase(b.a); n <= b.ate; n++) nums.add(n);
+    // Mesmo número vigente (não tachado) mais de uma vez fora do preâmbulo.
+    const vistos = new Map();
+    let titulo = false;
+    for (const b of blocos) {
+      if (b.k === 'h') titulo = true;
+      if (b.k === 'a' && !b.s && titulo) vistos.set(b.a, (vistos.get(b.a) || 0) + 1);
+    }
+    const repetidos = [...vistos].filter(([, n]) => n > 1).map(([a]) => a);
+    const citados = blocos.filter((b) => b.c).length;
     const maior = Math.max(...nums);
     const faltando = [];
     for (let i = 1; i <= maior; i++) if (!nums.has(i)) faltando.push(i);
     const tachados = blocos.filter((b) => b.s).length;
-    const naoReconhecidos = blocos.filter((b) => b.k !== 'a' && /^\W{0,3}Art(igo)?s?\b\.?\s*\d/i.test(b.t));
-    resumo.push(`| ${lei.sigla} | ✅ | ${arts.length} | ${maior} | ${faltando.length}${faltando.length ? ` (${corta(faltando.join(', '), 60)})` : ''} | ${tachados} | ${naoReconhecidos.length} |`);
+    const naoReconhecidos = blocos.filter((b) => b.k !== 'a' && !b.c && /^\W{0,3}Art(igo)?s?\b\.?\s*\d/i.test(b.t));
+    resumo.push(`| ${lei.sigla} | ✅ | ${arts.length} | ${maior} | ${faltando.length}${faltando.length ? ` (${corta(faltando.join(', '), 60)})` : ''} | ${repetidos.length}${repetidos.length ? ` (${corta(repetidos.join(', '), 50)})` : ''} | ${tachados} | ${citados} | ${naoReconhecidos.length} |`);
 
     const d = [`## ${lei.sigla} — ${lei.id}`, ''];
     if (faltando.length) d.push(`**Faltando:** ${corta(faltando.join(', '), 600)}`, '');
+    for (const a of repetidos.slice(0, 5)) {
+      d.push(`**Vigente repetido: art. ${a}**`, '');
+      blocos.filter((b) => b.a === a && !b.s).forEach((b) => d.push(`- ${JSON.stringify(corta(b.t, 150))}`));
+      d.push('');
+    }
     if (naoReconhecidos.length) {
       d.push('**Blocos com "Art." não reconhecidos como artigo:**', '');
       naoReconhecidos.slice(0, 15).forEach((b) => d.push(`- \`${b.k}\` ${JSON.stringify(corta(b.t, 140))}`));
@@ -73,7 +88,7 @@ async function main() {
         let j = i;
         do {
           const b = blocos[j];
-          const marca = b.s ? ' ~~tachado~~' : b.g ? ` (parcial: ${b.g.filter((g) => g[1]).map((g) => JSON.stringify(corta(g[0], 40))).join(', ')})` : '';
+          const marca = b.c ? ' (citação)' : b.s ? ' ~~tachado~~' : b.g ? ` (parcial: ${b.g.filter((g) => g[1]).map((g) => JSON.stringify(corta(g[0], 40))).join(', ')})` : '';
           d.push(`- \`${b.k}\`${marca} ${JSON.stringify(corta(b.t, 180))}`);
           j++;
         } while (j < blocos.length && j < i + 6 && blocos[j].k === 'p');

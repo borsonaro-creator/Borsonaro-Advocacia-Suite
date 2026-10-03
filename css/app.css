@@ -138,6 +138,7 @@ main { max-width: 860px; margin: 0 auto; padding: 16px 16px 96px; outline: none;
 .inc { padding-left: 1.6em; }
 .ali { padding-left: 2.4em; }
 .item { padding-left: 3em; }
+.citacao { margin-left: 1.2em; padding-left: .8em; border-left: 3px solid var(--borda); font-size: .94em; color: var(--texto-2); }
 .nota { font-family: var(--fonte-ui); font-size: .72em; color: var(--texto-2); }
 .nota a { color: inherit; }
 .rev { color: var(--revogado); text-decoration: line-through; }

@@ -90,11 +90,13 @@ function extrairBlocosBrutos(html) {
   const re = /<(\/?)([a-zA-Z][a-zA-Z0-9:]*)((?:"[^"]*"|'[^']*'|[^'">])*)>|([^<]+)|</g;
   const pilha = []; // { nome, riscado }
   let ignorando = 0;
+  let citacao = 0; // profundidade de <blockquote>
   const blocos = [];
   let atual = [];
+  let citacaoDoBloco = 0;
 
   const fechaBloco = () => {
-    if (atual.length) blocos.push(atual);
+    if (atual.length) blocos.push({ segs: atual, bq: citacaoDoBloco });
     atual = [];
   };
   const riscadoAgora = () => pilha.some((e) => e.riscado);
@@ -105,7 +107,10 @@ function extrairBlocosBrutos(html) {
     if (texto !== undefined || (!nomeBruto && m[0] === '<')) {
       if (ignorando) continue;
       const t = decodificarEntidades(texto ?? '<');
-      if (t) atual.push([t, riscadoAgora()]);
+      if (t) {
+        if (!atual.length) citacaoDoBloco = citacao;
+        atual.push([t, riscadoAgora()]);
+      }
       continue;
     }
     const nome = nomeBruto.toLowerCase();
@@ -115,7 +120,8 @@ function extrairBlocosBrutos(html) {
       continue;
     }
     if (ignorando) continue;
-    if (BLOCO.has(nome)) fechaBloco();
+    if (BLOCO.has(nome) || nome === 'blockquote') fechaBloco();
+    if (nome === 'blockquote') citacao = Math.max(0, citacao + (barra ? -1 : 1));
     if (VAZIO.has(nome) || attrs.trim().endsWith('/')) continue;
 
     if (!barra) {
@@ -137,37 +143,54 @@ function normalizarEspacos(t) {
 }
 
 function consolidarSegmentos(segs) {
-  const saida = [];
+  // Normaliza espaços considerando o bloco inteiro: vários trechos seguidos só
+  // de espaço viram um espaço só (e somem no início/fim do bloco).
+  const lista = [];
+  let terminaEmEspaco = true;
   for (const [t0, r] of segs) {
-    const t = normalizarEspacos(t0);
+    let t = normalizarEspacos(t0);
+    if (terminaEmEspaco) t = t.replace(/^ /, '');
     if (!t) continue;
-    const ult = saida[saida.length - 1];
-    if (ult && ult[1] === r) ult[0] += t;
-    else saida.push([t, r]);
+    terminaEmEspaco = t.endsWith(' ');
+    lista.push([t, r]);
   }
-  // Espaços soltos não decidem se o trecho está tachado.
-  for (let i = 0; i < saida.length; i++) {
-    if (!saida[i][0].trim()) {
-      const viz = saida[i - 1] || saida[i + 1];
-      if (viz) saida[i][1] = viz[1];
-    }
+  while (lista.length) {
+    const u = lista[lista.length - 1];
+    u[0] = u[0].replace(/ $/, '');
+    if (u[0]) break;
+    lista.pop();
+  }
+  // Espaços soltos (ex.: <strike> que só contém uma âncora) não decidem se o
+  // trecho está tachado: herdam a marcação do texto seguinte ou anterior.
+  for (let i = 0; i < lista.length; i++) {
+    if (lista[i][0].trim()) continue;
+    const viz = lista.slice(i + 1).find((x) => x[0].trim()) || lista.slice(0, i).reverse().find((x) => x[0].trim());
+    if (viz) lista[i][1] = viz[1];
   }
   const unidos = [];
-  for (const s of saida) {
+  for (const [t, r] of lista) {
     const ult = unidos[unidos.length - 1];
-    if (ult && ult[1] === s[1]) ult[0] += s[0];
-    else unidos.push([...s]);
+    if (ult && ult[1] === r) ult[0] += t;
+    else unidos.push([t, r]);
   }
-  if (unidos.length) {
-    unidos[0][0] = unidos[0][0].replace(/^\s+/, '');
-    unidos[unidos.length - 1][0] = unidos[unidos.length - 1][0].replace(/\s+$/, '');
-  }
-  return unidos.filter((s) => s[0]);
+  // "§ 1 o Para…" / "Art. 5 o" (o ordinal vem em <sup> separado) → "§ 1º Para…"
+  if (unidos.length) unidos[0][0] = unidos[0][0].replace(/^((?:Art(?:igo)?s?\.?|§)\s*\d{1,2}(?:\.\d{3})*|(?:Art(?:igo)?s?\.?|§)\s*\d{1,4})\s?o(?=[\s.\-–]|$)/, '$1º');
+  return unidos;
 }
 
-const RE_ARTIGO = /^Art(?:igo)?\.?\s*(\d{1,2}(?:\.\d{3})+|\d{1,4})\s*(?:\.?\s*[º°o](?![a-zà-ú]))?\s*(?:-([A-Z]{1,2})(?![A-Za-zÀ-ú]))?/;
+const RE_ARTIGO = /^Art(?:igo)?s?\.?\s*(\d{1,2}(?:\.\d{3})+|\d{1,4})\s*(?:\.?\s*[º°o](?![a-zà-ú]))?\s*(?:-([A-Z]{1,2})(?![A-Za-zÀ-ú]))?/;
 const RE_TITULO = /^(PARTE (GERAL|ESPECIAL)|PARTE\s+[IVXLC]+\b|LIVRO\b|LIVRO COMPLEMENTAR|T[ÍI]TULO\b|CAP[ÍI]TULO\b|SE[ÇC][ÃA]O\b|SUBSE[ÇC][ÃA]O\b|Se[çc][ãa]o\s+[IVXLC]+|Subse[çc][ãa]o\s+[IVXLC]+|ATO DAS DISPOSI[ÇC][ÕO]ES|DISPOSI[ÇC][ÕO]ES (GERAIS|FINAIS|TRANSIT[ÓO]RIAS|PRELIMINARES)|PRE[ÂA]MBULO)/;
 const BOILERPLATE = /^(Presid[êe]ncia da Rep[úu]blica|Casa Civil|Secretaria[- ]Geral|Subchefia para Assuntos Jur[íi]dicos|Secretaria Especial para Assuntos Jur[íi]dicos)$/i;
+
+const RE_INTERVALO = /^Art(?:igo)?s?\.?\s*(\d{1,2}(?:\.\d{3})+|\d{1,4})\s*[º°o]?\.?\s*(?:a|até)\s+(?:o\s+)?(\d{1,2}(?:\.\d{3})+|\d{1,4})\b/;
+
+// "Art. 1.620. a 1.629. (Revogados…)" → [1620, 1629]
+export function intervaloArtigos(texto) {
+  const m = RE_INTERVALO.exec(texto);
+  if (!m) return null;
+  const [a, b] = [Number(m[1].replace(/\./g, '')), Number(m[2].replace(/\./g, ''))];
+  return b > a && b - a <= 200 ? [a, b] : null;
+}
 
 export function numeroArtigo(texto) {
   const m = RE_ARTIGO.exec(texto);
@@ -178,6 +201,7 @@ export function numeroArtigo(texto) {
 
 function pareceTituloEmCaixaAlta(t) {
   if (t.length > 160 || t.length < 4) return false;
+  if (/^(§|Art|PAR[ÁA]GRAFO|\()/i.test(t) || /:$/.test(t)) return false;
   if (/[a-zà-ú]/.test(t)) return false;
   if (!/[A-ZÀ-Ú]{3}/.test(t)) return false;
   if (/^[IVXLC]+\s*[-–—]/.test(t)) return false; // inciso em maiúsculas
@@ -194,7 +218,16 @@ export function parsePlanalto(html) {
   const blocos = [];
   let anteriorEraTitulo = false;
 
-  for (const segsBrutos of brutos) {
+  // Citações: textos de outras leis transcritos (alterações), entre aspas ou
+  // dentro de <blockquote>. Seus "Art." não são artigos desta lei.
+  let emCitacao = false;
+  let citacaoNoBq = false;
+  let blocosNaCitacao = 0;
+  let ultimoArtigo = 0;
+  const RE_FECHA_ASPAS = /[”"]\s*(?:\(\s*NR\s*\))?\s*[.;,]?\s*(?:\((?:[^()]|\([^()]*\))*\)\s*)*$/;
+
+  for (const { segs: segsBrutos, bq } of brutos) {
+    if (emCitacao && citacaoNoBq && !bq) emCitacao = false;
     const segs = consolidarSegmentos(segsBrutos);
     if (!segs.length) continue;
     const t = segs.map((s) => s[0]).join('');
@@ -205,14 +238,41 @@ export function parsePlanalto(html) {
     if (tachados.length === segs.length) bloco.s = 1;
     else if (tachados.length) bloco.g = segs.map(([x, r]) => [x, r ? 1 : 0]);
 
-    const art = numeroArtigo(t);
+    const abreAspas = /^[“"]/.test(t);
+    let citado = emCitacao || abreAspas;
+    let art = numeroArtigo(t);
+    // Rede de segurança: aspas não fechadas não podem engolir a lei. Um artigo
+    // sem aspas que continua a numeração desta lei encerra a citação.
+    if (citado && !abreAspas && art && !bq && (Number(art.split('-')[0]) === ultimoArtigo + 1 || blocosNaCitacao > 150)) {
+      citado = false;
+      emCitacao = false;
+    }
+    if (citado) {
+      bloco.c = 1;
+      if (!emCitacao) { emCitacao = true; citacaoNoBq = bq > 0; blocosNaCitacao = 0; }
+      blocosNaCitacao++;
+      if (RE_FECHA_ASPAS.test(t) && !(abreAspas && t.length < 3)) emCitacao = false;
+      anteriorEraTitulo = false;
+      blocos.push(bloco);
+      continue;
+    }
     if (art) {
+      const n = Number(art.split('-')[0]);
+      if (!art.includes('-') && n > ultimoArtigo) ultimoArtigo = n;
+      const intervalo = intervaloArtigos(t);
+      if (intervalo) {
+        bloco.ate = intervalo[1];
+        ultimoArtigo = Math.max(ultimoArtigo, intervalo[1]);
+      }
       bloco.k = 'a';
       bloco.a = art;
       anteriorEraTitulo = false;
-    } else if (RE_TITULO.test(t) || pareceTituloEmCaixaAlta(t)) {
+    } else if (RE_TITULO.test(t)) {
       bloco.k = 'h';
       anteriorEraTitulo = true;
+    } else if (pareceTituloEmCaixaAlta(t)) {
+      bloco.k = 'h';
+      anteriorEraTitulo = false;
     } else if (anteriorEraTitulo && pareceSubtitulo(t)) {
       // Ex.: "Seção I" seguido de "Das Disposições Gerais".
       bloco.k = 'h';
