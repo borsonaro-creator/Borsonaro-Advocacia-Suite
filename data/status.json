@@ -1,149 +1,197 @@
 {
   "leis": {
     "cf": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-19T16:27:38.694Z",
-      "artigos": 424
+      "artigos": 424,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "cc": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 2083
+      "artigos": 2083,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "cpc": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 1082
+      "artigos": 1082,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "lindb": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 30
+      "artigos": 30,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "cdc": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-19T16:27:38.694Z",
-      "artigos": 130
+      "artigos": 130,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "inquilinato": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 101
+      "artigos": 101,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "bemfamilia": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 8
+      "artigos": 8,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "jec": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 106
+      "artigos": 106,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "jef": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 28
+      "artigos": 28,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "idoso": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 179
+      "artigos": 179,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "pcd": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 130
+      "artigos": 130,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "clt": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-12T19:02:02.040Z",
-      "artigos": 1847
+      "artigos": 1847,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "fgts": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 96
+      "artigos": 96,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "domesticos": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 48
+      "artigos": 48,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "temporario": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 39
+      "artigos": 39,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "dsr": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 30
+      "artigos": 30,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "decimoterceiro": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 4
+      "artigos": 4,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "segurodesemprego": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 69
+      "artigos": 69,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "processotrabalho": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 21
+      "artigos": 21,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "beneficios": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 290
+      "artigos": 290,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "custeio": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-12T19:02:02.040Z",
-      "artigos": 180
+      "artigos": 180,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "rps": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 689
+      "artigos": 689,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "loas": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 71
+      "artigos": 71,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     },
     "ec103": {
-      "ok": true,
+      "ok": false,
       "verificadoEm": "2026-10-26T16:06:44.070Z",
       "alteradoEm": "2026-10-03T16:28:30.436Z",
-      "artigos": 36
+      "artigos": 36,
+      "erro": "conteúdo inesperado (5 blocos, 0 artigos)",
+      "tentativaEm": "2026-11-02T19:28:43.384Z"
     }
   },
-  "geradoEm": "2026-10-26T16:06:44.070Z"
+  "geradoEm": "2026-11-02T19:28:43.384Z"
 }
